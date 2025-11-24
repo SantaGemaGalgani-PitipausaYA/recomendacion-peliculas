@@ -1,49 +1,129 @@
-from PyQt5.QtWidgets import QMainWindow, QLabel, QLineEdit, QPushButton, QHBoxLayout, QWidget
-
+from PyQt5.QtWidgets import  QLabel, QLineEdit, QPushButton, QHBoxLayout, QWidget, QMessageBox
+from PyQt5.QtCore import Qt
+import bbdd.bbdd as bbdd 
 class LoginWindow(QWidget):
-    def __init__(self):
+    def __init__(self, db= None, on_login_success=None):
         super().__init__()
-        self.setWindowTitle("Login Window")
+        self.setWindowTitle("Login - Pitipausa YA!")
         
-        layout = QHBoxLayout()
+        self.db= db
+        self.on_login_success= on_login_success
+        
+        self.main_layout = QHBoxLayout()
+
+        self.info_label = QLabel("Inicia sesión o regístrate")
+        self.main_layout.addWidget(self.info_label)
 
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Usuario")
-
-        self.email_input = QLineEdit()
-        self.email_input.setPlaceholderText("Email (solo para registro)")
+        self.main_layout.addWidget(self.user_input)
 
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Contraseña")
         self.pass_input.setEchoMode(QLineEdit.Password)
+        self.main_layout.addWidget(self.pass_input)
+
+        self.email_input = QLineEdit()
+        self.email_input.setPlaceholderText("Email (solo para registro)")
+        self.email_input.hide()  # Se mostrará solo al registrarse
+        self.main_layout.addWidget(self.email_input)
 
         self.login_button = QPushButton("Iniciar sesión")
         self.login_button.clicked.connect(self.login_user)
+        self.main_layout.addWidget(self.login_button)
 
         self.register_button = QPushButton("Registrar nuevo usuario")
-        self.register_button.clicked.connect(self.register_user)
+        self.register_button.clicked.connect(self.show_register)
+        self.main_layout.addWidget(self.register_button)
 
-        layout.addWidget(QLabel("Inicia sesión o regístrate"))
-        layout.addWidget(self.user_input)
-        layout.addWidget(self.email_input)
-        layout.addWidget(self.pass_input)
-        layout.addWidget(self.login_button)
-        layout.addWidget(self.register_button)
-
-        self.setLayout(layout)
+        self.setLayout(self.main_layout)
 
     def login_user(self):
-        username = self.user_input.text()
-        password = self.pass_input.text()
-        # Aquí iría la lógica para iniciar sesión del usuario
-        print(f"Intentando iniciar sesión con usuario: {username}")
-        # Lógica de autenticación aquí
-        pass
+        username = self.user_input.text().strip()
+        password = self.pass_input.text().strip()
+
+        if not username or not password:
+            QMessageBox.warning(self, "Error", "Debes introducir usuario y contraseña")
+            return
+        
+        stored_password = self.db.get_user_password(username)
+        if stored_password is None:
+            QMessageBox.warning(self, "Error", "Usuario no registrado")
+        elif stored_password != password:
+            QMessageBox.warning(self, "Error", "Contraseña incorrecta")
+        else:
+            conn = bbdd.sqlite3.connect("peliculas.db")
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, email FROM Users WHERE username=?", (username,))
+            row = cursor.fetchone()
+            conn.close()
+            id_user = row[0]
+            email = row[1]
+
+            user_info = self.db.get_user_by_username(username)
+            # Guardar info del usuario logueado
+            if self.on_login_success:
+                self.on_login_success(user_info)
+            self.close()
+
+    def show_register(self):
+        self.email_input.show()
+        self.login_button.setText("Registrar y entrar")
+        self.login_button.clicked.disconnect()
+        self.login_button.clicked.connect(self.register_user)
+        self.register_button.setDisabled(True)
+
     def register_user(self):
-        username = self.user_input.text()
-        email = self.email_input.text()
-        password = self.pass_input.text()
-        # Aquí iría la lógica para registrar un nuevo usuario
-        print(f"Intentando registrar usuario: {username} con email: {email}")
-        # Lógica de registro aquí
-        pass
+        username = self.user_input.text().strip()
+        email = self.email_input.text().strip()
+        password = self.pass_input.text().strip()
+
+        if not username or not password or not email:
+            QMessageBox.warning(self, "Error", "Debes completar todos los campos")
+            return
+
+        if "@" not in email or (not email.endswith(".com") and not email.endswith(".es")):
+            QMessageBox.warning(self, "Error", "El email no es válido")
+            return
+
+        # Comprobar si usuario ya existe usando BBDD
+        if self.db.get_user_password(username) is not None:
+            QMessageBox.warning(self, "Error", "El usuario ya existe")
+            return
+
+        self.db.add_user(username=username, password=password, email=email, bio="", profile_pic="default.svg")
+
+        QMessageBox.information(self, "Registro exitoso", "Usuario registrado correctamente")
+
+        # Obtener id y email del usuario recién creado
+        conn = bbdd.sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email FROM Users WHERE username=?", (username,))
+        row = cursor.fetchone()
+        conn.close()
+        id_user = row[0]
+        email = row[1]
+
+
+        user_info = self.db.get_user_by_username(username)
+        # Guardar info del usuario y abrir MainWindow
+        if self.on_login_success:
+            self.on_login_success(user_info)
+        self.close()
+
+        # Volver al login normal
+        self.email_input.hide()
+        self.login_button.setText("Iniciar sesión")
+        self.login_button.clicked.disconnect()
+        self.login_button.clicked.connect(self.login_user)
+        self.register_button.setDisabled(False)
+
+# quitar comillas para ejecutar
+'''
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = LoginWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+'''
