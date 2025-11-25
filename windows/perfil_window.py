@@ -37,11 +37,13 @@ class PerfilWindow(QWidget):
         # Username editable
         layout.addWidget(QLabel("Usuario:"))
         self.username_input = QLineEdit(self.logged_user['username'])
+        '''self.username_input.setReadOnly(True)  # Hacer el campo de username no editable'''
         layout.addWidget(self.username_input)
 
         # Email editable
         layout.addWidget(QLabel("Email:"))
         self.email_input = QLineEdit(self.logged_user['email'])
+        '''self.email_input.setReadOnly(True)  # Hacer el campo de email no editable'''
         layout.addWidget(self.email_input)
 
         # Biografía editable
