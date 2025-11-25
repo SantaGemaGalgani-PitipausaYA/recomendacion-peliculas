@@ -2,10 +2,12 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QHBoxLayout, QWidget, QApplicat
 from windows.perfil_window import PerfilWindow
 from windows.historial_window import HistorialWindow
 from windows.calificar_window import CalificarWindow
+from windows.ficha_pelicula_window import FichaPeliculaWindow
 
 class MainWindow(QWidget):
     def __init__(self, logged_user= None, db = None):
         super().__init__()
+        self.resize(600, 400)
         self.logged_user = logged_user
         self.db = db
         self.setWindowTitle("Pitipausa YA! - Recomendador 3M,5")
@@ -34,6 +36,14 @@ class MainWindow(QWidget):
         btn_perfil.clicked.connect(self.go_to_perfil)
         btn_historial.clicked.connect(self.go_to_historial)
         btn_calificar.clicked.connect(self.go_to_calificar)
+
+        '''ESTE BOTON ES PROVISIONAL HASTA QUE SE HAGA LA INTEGRACION CON LA FICHA DE PELICULA'''
+        #btn_perfil.clicked.connect(self.go_to_ficha) #Provisional
+
+    def go_to_ficha(self): #Provisional
+        self.hide()
+        self.ficha_pelicula_window = FichaPeliculaWindow(pelicula_id=1)
+        self.ficha_pelicula_window.show()
 
     def go_to_perfil(self):
         self.hide()

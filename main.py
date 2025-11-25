@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from windows.splash_screen import SplashScreen
 from windows.login_window import LoginWindow
@@ -7,8 +8,18 @@ import bbdd.bbdd as bbdd
 
 class AppController:
     def __init__(self):
+        # Crear una sola instancia de QApplication
         self.app = QApplication(sys.argv)
-        self.logged_user= None
+        self.logged_user = None
+
+        # Cargar estilos globales desde archivo externo
+        ruta_qss = os.path.join(os.path.dirname(__file__), "styles", "app_style.qss")
+        try:
+            with open(ruta_qss, "r") as f:
+                self.app.setStyleSheet(f.read())
+        except FileNotFoundError:
+            QMessageBox.warning(None, "Estilos no encontrados",
+                                f"No se pudo cargar el archivo de estilos: {ruta_qss}")
 
         # Inicializar base de datos ANTES de abrir ventanas
         self.bd = bbdd.BaseDeDatos()
@@ -16,7 +27,7 @@ class AppController:
 
         # Iniciar splash
         self.splash_screen = SplashScreen()
-        self.splash_screen.on_finish= self.open_login
+        self.splash_screen.on_finish = self.open_login
         self.splash_screen.show()
     
     def open_login(self):
@@ -28,7 +39,7 @@ class AppController:
         self.main_window = MainWindow(logged_user=self.logged_user, db=self.bd)
         self.main_window.show()
 
-        # Cerrar ventana de login si aún esta abierta
+        # Cerrar ventana de login si aún está abierta
         if hasattr(self, "login_window"):
             self.login_window.close()
 
@@ -36,6 +47,5 @@ class AppController:
         sys.exit(self.app.exec_())
 
 if __name__ == "__main__":
-
-    controller= AppController()
+    controller = AppController()
     controller.run()
