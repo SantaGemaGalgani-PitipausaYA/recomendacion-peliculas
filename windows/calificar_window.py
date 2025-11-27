@@ -1,5 +1,6 @@
 # calificar_window.py
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QLineEdit
+
 class CalificarWindow(QWidget):
     def __init__(self, main_window, logged_user=None, db=None):
         super().__init__()

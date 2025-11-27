@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 from windows.perfil_window import PerfilWindow
 from windows.historial_window import HistorialWindow
 from windows.calificar_window import CalificarWindow
+from ai_dataset.ai_module import Recommender
+from windows.ficha_pelicula_window import FichaPeliculaWindow
 
 class MainWindow(QWidget):
     def __init__(self, logged_user=None, db=None):
@@ -11,8 +13,13 @@ class MainWindow(QWidget):
         self.resize(600, 400)
         self.logged_user = logged_user
         self.db = db
+        self.recommender = Recommender()
+        
 
         layout = QVBoxLayout()
+
+        self.recommend_layout = QVBoxLayout()
+        layout.addLayout(self.recommend_layout)
 
         title = QLabel("¿Qué quieres ver hoy?")
         title.setObjectName("titleLabel")
@@ -21,6 +28,7 @@ class MainWindow(QWidget):
         self.txt_recommend = QLineEdit()
         self.txt_recommend.setProperty("class", "bigInputText")
         self.txt_recommend.setPlaceholderText("Escribe un prompt aquí sobre la peli que quieras ver")
+        self.txt_recommend.returnPressed.connect(self.buscar_por_prompt)
         layout.addWidget(self.txt_recommend)
 
         btn_layout = QHBoxLayout()
@@ -55,3 +63,48 @@ class MainWindow(QWidget):
         self.hide()
         self.calificar_window = CalificarWindow(self, self.logged_user, self.db)
         self.calificar_window.show()
+
+    def buscar_por_prompt(self):
+        prompt = self.txt_recommend.text().strip()
+        if not prompt:
+            return
+
+        # Obtener recomendaciones
+        recomendaciones = self.recommender.recomendar_por_prompt(prompt, top_n=5)
+
+        # Limpiar layout anterior
+        while self.recommend_layout.count():
+            child = self.recommend_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # Añadir botón por cada recomendación
+        for titulo in recomendaciones:
+            btn = QPushButton(titulo)
+            btn.setProperty("class", "app_boton")
+            btn.clicked.connect(lambda checked, t=titulo: self.abrir_ficha(t))
+            self.recommend_layout.addWidget(btn)
+
+    def abrir_ficha(self, titulo):
+        # Buscar id de la película en la BBDD
+        conn = self.db.conn if hasattr(self.db, 'conn') else None
+        pelicula_id = None
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM Movies WHERE title=?", (titulo,))
+            row = cursor.fetchone()
+            if row:
+                pelicula_id = row[0]
+            else:
+                # Si no existe, la agregamos
+                self.db.add_movie(titulo)
+                cursor.execute("SELECT id FROM Movies WHERE title=?", (titulo,))
+                row = cursor.fetchone()
+                if row:
+                    pelicula_id = row[0]
+            conn.commit()
+            cursor.close()
+
+        # Abrir ventana ficha
+        self.ficha_window = FichaPeliculaWindow(pelicula_id=pelicula_id, db=self.db, user_id=self.logged_user['id'])
+        self.ficha_window.show()

@@ -1,6 +1,7 @@
 # ficha_pelicula_window.py
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QPixmap
+from bbdd.bbdd import BaseDeDatos
 
 class FichaPeliculaWindow(QWidget):
     def __init__(self, pelicula_id=None, db=None, user_id=None):

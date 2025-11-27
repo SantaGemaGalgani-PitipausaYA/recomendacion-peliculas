@@ -177,6 +177,14 @@ class BaseDeDatos():
         if row:
             return {"id": row[0], "username": row[1], "email": row[2]}
         return None
+    
+    def get_movie_id(self, title):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM Movies WHERE title=?", (title,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else None
 
 
     def SHOW_ALL_DEBUG(self):
