@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 class BaseDeDatos():
     def __init__(self):
@@ -8,6 +9,8 @@ class BaseDeDatos():
     def crear_bbdd(self):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
+
+
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Genres
         (
@@ -19,7 +22,8 @@ class BaseDeDatos():
         CREATE TABLE IF NOT EXISTS Movies
         (
         	id INTEGER PRIMARY KEY AUTOINCREMENT,
-        	title TEXT NOT NULL
+        	title TEXT NOT NULL,
+        	overview TEXT NOT NULL
         );""")
 
         cursor.execute("""
@@ -64,13 +68,34 @@ class BaseDeDatos():
         	FOREIGN KEY (id_movie) REFERENCES Movies(id),
         	FOREIGN KEY (id_user) REFERENCES User(id)
         );""")
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Historial
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_user INTEGER,
+            id_movie INTEGER,
+            fecha TEXT,
+            FOREIGN KEY (id_user) REFERENCES Users(id),
+            FOREIGN KEY (id_movie) REFERENCES Movies(id)
+        );""")
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS VerDespues
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_user INTEGER,
+            id_movie INTEGER,
+            FOREIGN KEY (id_user) REFERENCES Users(id),
+            FOREIGN KEY (id_movie) REFERENCES Movies(id)
+        );""")
+
         conn.commit()
         print("Base de datos creada")
         conn.close()
         pass
 
 
-    def add_rating(self, rating: str, id_user: int, id_movie: int):
+    def add_rating(self, rating: float, id_user: int, id_movie: int):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Ratings (rating, id_user, id_movie) VALUES (?, ?, ?)", (rating, id_user, id_movie))
@@ -78,10 +103,10 @@ class BaseDeDatos():
         conn.close()
         pass
 
-    def add_movie(self, title: str):
+    def add_movie(self, title: str, overview: str = ""):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Movies (title) VALUES (?)", (title,))
+        cursor.execute("INSERT INTO Movies (title, overview) VALUES (?, ?)", (title, overview))
         conn.commit()
         conn.close()
         pass
@@ -178,7 +203,7 @@ class BaseDeDatos():
             return {"id": row[0], "username": row[1], "email": row[2]}
         return None
     
-    def get_movie_id(self, title):
+    def get_movie_id(self, title: str):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
         cursor.execute("SELECT id FROM Movies WHERE title=?", (title,))
@@ -186,7 +211,55 @@ class BaseDeDatos():
         conn.close()
         return row[0] if row else None
 
+    def add_historial(self, id_user: int, id_movie: int):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        fecha = datetime.now().strftime("%Y-%m-%d")
+        cursor.execute("INSERT INTO Historial (id_user, id_movie, fecha) VALUES (?, ?, ?)", (id_user, id_movie, fecha))
+        conn.commit()
+        conn.close()
+        
+    def get_historial_usuario(self, user_id):
+        """
+        Devuelve una lista de tuplas (titulo_pelicula, fecha) del historial de un usuario.
+        """
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT m.title, h.fecha
+            FROM Historial h
+            JOIN Movies m ON m.id = h.id_movie
+            WHERE h.id_user=?
+            ORDER BY h.fecha DESC
+        """, (user_id,))
+        items = cursor.fetchall()
+        conn.close()
+        return items
+        
 
+    def add_ver_despues(self, id_user: int, id_movie: int):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO VerDespues (id_user, id_movie) VALUES (?, ?)", (id_user, id_movie))
+        conn.commit()
+        conn.close()
+
+    def get_movie_overview(self, id_movie: int):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT overview FROM Movies WHERE id=?", (id_movie,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else "Sinopsis no disponible"
+    
+    def get_movie_title(self, id_movie: int):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT title FROM Movies WHERE id=?", (id_movie,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else "Título desconocido"
+    
     def SHOW_ALL_DEBUG(self):
         """
         DEBUG: Shows all the data in the database, for debug purposes only. Made by GPT.

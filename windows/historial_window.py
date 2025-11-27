@@ -1,5 +1,6 @@
 # historial_window.py
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem
+from windows.ficha_pelicula_window import FichaPeliculaWindow
 
 class HistorialWindow(QWidget):
     def __init__(self, main_window, logged_user=None, db=None):
@@ -13,6 +14,8 @@ class HistorialWindow(QWidget):
         title = QLabel("Historial de recomendaciones")
         title.setObjectName("titleLabel")
         layout.addWidget(title)
+
+        self.load_historial()
 
         self.table = QTableWidget()
         self.table.setObjectName("historialTable")
@@ -39,19 +42,31 @@ class HistorialWindow(QWidget):
 
         self.setLayout(layout)
 
-        # Ejemplo de selección que llevaría a la ficha
-        # self.table.itemDoubleClicked.connect(self.open_ficha)
+        #HACER DOBLECLICK SOBRE FILA PARA ABRIR LA FICHA
+        self.table.itemDoubleClicked.connect(self.open_ficha)
 
     def load_historial(self):
-        items = [("Interstellar", "2025-11-01"), ("Arrival", "2025-11-15")]
+        """
+        Carga el historial del usuario desde la base de datos y lo muestra en la tabla.
+        """
+        items = self.db.get_historial_usuario(self.logged_user['id'])
         self.table.setRowCount(len(items))
         for i, (film, date) in enumerate(items):
             self.table.setItem(i, 0, QTableWidgetItem(film))
             self.table.setItem(i, 1, QTableWidgetItem(date))
 
     def open_ficha(self, item):
-        # obtener pelicula_id desde BBDD y abrir ficha
-        pass
+        """
+        Abre la ficha de la película seleccionada.
+        Detecta la fila seleccionada, obtiene el título y llama a la ventana FichaPeliculaWindow.
+        """
+        row = item.row()
+        titulo = self.table.item(row, 0).text()
+        pelicula_id = self.db.get_movie_id(titulo)
+
+        # Abrir ficha de película
+        self.ficha_window = FichaPeliculaWindow(pelicula_id=pelicula_id, db=self.db, user_id=self.logged_user['id'])
+        self.ficha_window.show()
 
     def volver(self):
         self.close()

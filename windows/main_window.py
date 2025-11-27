@@ -41,8 +41,8 @@ class MainWindow(QWidget):
         btn_layout.addWidget(btn_perfil)
         btn_layout.addWidget(btn_historial)
         btn_layout.addWidget(btn_calificar)
-
         layout.addLayout(btn_layout)
+
         self.setLayout(layout)
 
         btn_perfil.clicked.connect(self.go_to_perfil)
@@ -69,7 +69,6 @@ class MainWindow(QWidget):
         if not prompt:
             return
 
-        # Obtener recomendaciones
         recomendaciones = self.recommender.recomendar_por_prompt(prompt, top_n=5)
 
         # Limpiar layout anterior
@@ -78,33 +77,35 @@ class MainWindow(QWidget):
             if child.widget():
                 child.widget().deleteLater()
 
-        # Añadir botón por cada recomendación
+        # Crear botones por cada recomendación
         for titulo in recomendaciones:
+            pelicula_id = self.db.get_movie_id(titulo)
+            if not pelicula_id:
+                row = self.recommender.df[self.recommender.df['title'] == titulo]
+                overview = row.iloc[0]['overview'] if not row.empty else ""
+                self.db.add_movie(titulo, overview)
+                pelicula_id = self.db.get_movie_id(titulo)
+
+            self.db.add_historial(self.logged_user['id'], pelicula_id)
+
             btn = QPushButton(titulo)
             btn.setProperty("class", "app_boton")
             btn.clicked.connect(lambda checked, t=titulo: self.abrir_ficha(t))
             self.recommend_layout.addWidget(btn)
 
     def abrir_ficha(self, titulo):
-        # Buscar id de la película en la BBDD
-        conn = self.db.conn if hasattr(self.db, 'conn') else None
-        pelicula_id = None
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id FROM Movies WHERE title=?", (titulo,))
-            row = cursor.fetchone()
-            if row:
-                pelicula_id = row[0]
-            else:
-                # Si no existe, la agregamos
-                self.db.add_movie(titulo)
-                cursor.execute("SELECT id FROM Movies WHERE title=?", (titulo,))
-                row = cursor.fetchone()
-                if row:
-                    pelicula_id = row[0]
-            conn.commit()
-            cursor.close()
+        #obtener id de pelicula de la bbdd
+        pelicula_id = self.db.get_movie_id(titulo)
+        if not pelicula_id:
+            row = self.recommender.df[self.recommender.df['title'] == titulo]
+            overview = row.iloc[0]['overview'] if not row.empty else ""
+            self.db.add_movie(titulo, overview)
+            pelicula_id = self.db.get_movie_id(titulo)
 
         # Abrir ventana ficha
-        self.ficha_window = FichaPeliculaWindow(pelicula_id=pelicula_id, db=self.db, user_id=self.logged_user['id'])
+        self.ficha_window = FichaPeliculaWindow(
+            pelicula_id=pelicula_id,
+            db=self.db,
+            user_id=self.logged_user['id']
+        )
         self.ficha_window.show()
