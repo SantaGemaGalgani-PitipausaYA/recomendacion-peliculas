@@ -1,5 +1,5 @@
 QWidget {
-    background-color: #f5f5dc;
+    background-color: #f0d9bb;
     font-family: Arial;
 }
 
@@ -9,16 +9,30 @@ QWidget {
     margin-bottom: 15px;
 }
 
+QLabel[class="titleLabel"] {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+QLineEdit[class="bigInputText"] {
+    padding: 8px;
+    border: 2px solid #675494;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
 #inputField {
     padding: 8px;
-    border: 2px solid #3498db;
+    border: 2px solid #675494;
     border-radius: 6px;
     font-size: 14px;
     margin-bottom: 10px;
 }
 
 QPushButton[class="app_boton"] {
-    background-color: #3498db;
+    background-color: #675494;
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -27,14 +41,21 @@ QPushButton[class="app_boton"] {
 }
 
 QPushButton[class="app_boton"]:hover {
-    background-color: #2980b9;
+    background-color: #4a3671;
 }
 
 QPushButton[class="app_boton"]:pressed {
-    background-color: #1f618d;
+    background-color: #4a3671;
 }
 
-#posterImage {
-    border: 3px solid #2c3e50;
-    margin-right: 20px;
+QPushButton[class="profile_pic_button"] {
+    background-color: transparent;
+    border: 2px solid #675494;
+    border-radius: 6px;
+    padding: 4px;
 }
+
+QPushButton[class="profile_pic_button"]:hover {
+    border: 2px solid #4a3671;
+}
+

@@ -15,16 +15,21 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
 
         see_label = QLabel("¿Que quieres ver hoy?")
+        see_label.setProperty("class", "titleLabel")
         layout.addWidget(see_label)
 
         txt_recommend = QLineEdit()
+        txt_recommend.setProperty("class", "bigInputText")
         txt_recommend.setPlaceholderText("Escribe un prompt aquí sobra la peli que quieras ver")
         layout.addWidget(txt_recommend)
 
         recomendation_layout = QHBoxLayout()
         btn_perfil = QPushButton("Perfil")
+        btn_perfil.setProperty("class", "app_boton")
         btn_historial = QPushButton("Historial")
+        btn_historial.setProperty("class", "app_boton")
         btn_calificar = QPushButton("Calificar")
+        btn_calificar.setProperty("class", "app_boton")
         recomendation_layout.addWidget(btn_perfil)
         recomendation_layout.addWidget(btn_historial)
         recomendation_layout.addWidget(btn_calificar)

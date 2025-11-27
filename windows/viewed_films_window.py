@@ -1,6 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QTableWidget
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QTableWidget, QPushButton
 
 class ViewedFilmsWindow(QWidget):
     def __init__(self, user_id=None):
@@ -9,17 +7,21 @@ class ViewedFilmsWindow(QWidget):
         self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
+
+        # Título con estilo
         page_title = QLabel("Listado de Películas Vistas")
+        page_title.setObjectName("titleLabel")
         layout.addWidget(page_title)
 
-        # Aquí se añadiría la lógica para mostrar las películas vistas por el usuario
-
+        # Tabla de películas vistas
         table = QTableWidget()
         table.setColumnCount(1)
         table.setHorizontalHeaderLabels(["Título de la Película"])
         layout.addWidget(table)
 
+        # Botón volver con estilo
         button_volver = QPushButton("Volver")
+        button_volver.setProperty("class", "app_boton")
         button_volver.clicked.connect(self.go_back)
         layout.addWidget(button_volver)
 

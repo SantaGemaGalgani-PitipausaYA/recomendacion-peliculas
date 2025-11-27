@@ -20,6 +20,7 @@ class ProfilePicWindow(QWidget):
                 continue
 
             btn = QPushButton()
+            btn.setProperty("class", "profile_pic_button")  # clase específica para estos botones
             icon = QIcon(os.path.join(self.profile_dir, pic_file))
             btn.setIcon(icon)
             btn.setIconSize(QSize(80, 80))

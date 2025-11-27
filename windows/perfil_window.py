@@ -1,7 +1,6 @@
 import os
-from PyQt5.QtWidgets import  QLabel, QPushButton, QVBoxLayout, QWidget, QLineEdit, QTextEdit, QMessageBox
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget, QLineEdit, QTextEdit, QMessageBox
+from PyQt5.QtGui import QPixmap
 from windows.profile_pic_window import ProfilePicWindow
 
 class PerfilWindow(QWidget):
@@ -18,7 +17,10 @@ class PerfilWindow(QWidget):
         layout = QVBoxLayout()
 
         # Foto de perfil
-        layout.addWidget(QLabel("Foto de perfil:"))
+        foto_label = QLabel("Foto de perfil:")
+        foto_label.setObjectName("titleLabel")
+        layout.addWidget(foto_label)
+
         self.profile_label = QLabel()
         self.profile_label.setFixedSize(100, 100)
         self.profile_label.setScaledContents(True)
@@ -31,36 +33,39 @@ class PerfilWindow(QWidget):
 
         # Botón para cambiar foto de perfil
         change_pic_btn = QPushButton("Cambiar foto de perfil")
+        change_pic_btn.setProperty("class", "app_boton")
         change_pic_btn.clicked.connect(self.open_profile_pic_window)
         layout.addWidget(change_pic_btn)
 
         # Username editable
         layout.addWidget(QLabel("Usuario:"))
         self.username_input = QLineEdit(self.logged_user['username'])
-        '''self.username_input.setReadOnly(True)  # Hacer el campo de username no editable'''
+        self.username_input.setObjectName("inputField")
         layout.addWidget(self.username_input)
 
         # Email editable
         layout.addWidget(QLabel("Email:"))
         self.email_input = QLineEdit(self.logged_user['email'])
-        '''self.email_input.setReadOnly(True)  # Hacer el campo de email no editable'''
+        self.email_input.setObjectName("inputField")
         layout.addWidget(self.email_input)
 
         # Biografía editable
         layout.addWidget(QLabel("Biografía:"))
         self.bio_input = QTextEdit()
-        # Traer bio desde la BBDD
+        self.bio_input.setObjectName("inputField")
         bio = self.db.get_user_bio(self.logged_user['id'])
         self.bio_input.setText(bio if bio else "")
         layout.addWidget(self.bio_input)
 
         # Botón para guardar cambios
         save_btn = QPushButton("Guardar cambios")
+        save_btn.setProperty("class", "app_boton")
         save_btn.clicked.connect(self.guardar_cambios)
         layout.addWidget(save_btn)
 
         # Botón volver
         back_btn = QPushButton("Volver")
+        back_btn.setProperty("class", "app_boton")
         back_btn.clicked.connect(self.volver)
         layout.addWidget(back_btn)
 
@@ -73,6 +78,7 @@ class PerfilWindow(QWidget):
     def cambiar_foto(self, pic_file):
         self.current_profile_path = os.path.join(self.profile_dir, pic_file)
         self.profile_label.setPixmap(QPixmap(self.current_profile_path))
+
     def guardar_cambios(self):
         username = self.username_input.text().strip()
         email = self.email_input.text().strip()
@@ -99,5 +105,3 @@ class PerfilWindow(QWidget):
     def volver(self):
         self.main_window.show()
         self.close()
-
-    

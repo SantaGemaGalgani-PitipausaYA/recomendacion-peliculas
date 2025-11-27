@@ -11,17 +11,20 @@ class LoginWindow(QWidget):
     def __init__(self, db=None, on_login_success=None):
         super().__init__()
         self.setWindowTitle("Login - Pitipausa YA!")
-        self.resize(800, 400)
+        self.resize(400, 800)
+        
+        '''Impedir que la pantalla se redimensione'''
+        self.setFixedSize(self.size())
 
         self.db = db
         self.on_login_success = on_login_success
 
         # Layout principal dividido en dos mitades
-        main_layout = QHBoxLayout(self)
+        main_layout = QVBoxLayout(self)
 
-        # --- Mitad izquierda: Imagen cuadrada ---
+        # --- Mitad arriba: Imagen cuadrada ---
         image_label = QLabel()
-        pixmap = QPixmap("logo.png")  # pon tu imagen aquí
+        pixmap = QPixmap("assets/logo.png")  # pon tu imagen aquí
         pixmap = pixmap.scaled(350, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignCenter)
