@@ -59,3 +59,38 @@ QPushButton[class="profile_pic_button"]:hover {
     border: 2px solid #4a3671;
 }
 
+/* app_style.qss */
+#splashProgress {
+    border: 2px solid #675494;
+    border-radius: 6px;
+    text-align: center;
+    color: #2c3e50;
+}
+#splashProgress::chunk { background-color: #675494; }
+
+QLabel#titleLabel { font-size: 20px; font-weight: bold; color: #2c3e50; }
+QLineEdit#inputField, QTextEdit#inputField {
+    border: 2px solid #675494; border-radius: 6px; padding: 6px;
+}
+QPushButton[class="app_boton"] {
+    background-color: #675494; color: white; border: none; border-radius: 6px; padding: 8px 14px;
+}
+QPushButton[class="app_boton"]:hover { background-color: #4a3671; }
+
+QPushButton[class="profile_pic_button"] {
+    background: transparent; border: 2px solid #675494; border-radius: 6px; padding: 4px;
+}
+QPushButton[class="profile_pic_button"]:hover { border-color: #4a3671; }
+
+#filmsTable, #rankingTable, #verDespuesTable, #historialTable {
+    border: 2px solid #675494; gridline-color: #675494;
+    selection-background-color: #675494; selection-color: white;
+}
+#filmsTable QHeaderView::section,
+#rankingTable QHeaderView::section,
+#verDespuesTable QHeaderView::section,
+#historialTable QHeaderView::section {
+    background-color: #f0d9bb; color: #2c3e50; font-weight: bold; border: 1px solid #675494;
+}
+#synopsisText { font-size: 13px; color: #2c3e50; margin-top: 8px; }
+

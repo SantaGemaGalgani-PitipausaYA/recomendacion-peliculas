@@ -1,3 +1,4 @@
+# profile_pic_window.py
 import os
 from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout
 from PyQt5.QtGui import QIcon
@@ -12,26 +13,21 @@ class ProfilePicWindow(QWidget):
         self.parent = parent
 
         grid = QGridLayout()
-        row = 0
-        col = 0
+        row, col = 0, 0
 
         for pic_file in os.listdir(self.profile_dir):
             if not pic_file.lower().endswith((".png", ".jpg", ".jpeg", ".svg")):
                 continue
-
             btn = QPushButton()
-            btn.setProperty("class", "profile_pic_button")  # clase específica para estos botones
+            btn.setProperty("class", "profile_pic_button")
             icon = QIcon(os.path.join(self.profile_dir, pic_file))
             btn.setIcon(icon)
             btn.setIconSize(QSize(80, 80))
             btn.setFixedSize(100, 100)
-
             btn.clicked.connect(lambda checked, p=pic_file: self.select_pic(p))
-
             grid.addWidget(btn, row, col)
-
             col += 1
-            if col == 4:  # 4 columnas por fila
+            if col == 4:
                 col = 0
                 row += 1
 
