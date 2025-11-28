@@ -260,6 +260,35 @@ class BaseDeDatos():
         conn.close()
         return row[0] if row else "Título desconocido"
     
+# Devuelve una lista de tuplas (titulo_pelicula, rating) de un usuario
+    def get_user_ranking(self, id_user):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT m.title, r.rating
+            FROM Ratings r
+            JOIN Movies m ON r.id_movie = m.id
+            WHERE r.id_user=?
+            ORDER BY r.rating DESC
+        """, (id_user,))
+        items = cursor.fetchall()
+        conn.close()
+        return items
+
+    # Devuelve la lista de títulos que el usuario ha marcado como "Ver después"
+    def get_ver_despues_usuario(self, id_user):
+        conn = sqlite3.connect("peliculas.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT m.title
+            FROM VerDespues v
+            JOIN Movies m ON v.id_movie = m.id
+            WHERE v.id_user=?
+        """, (id_user,))
+        items = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        return items
+
     def SHOW_ALL_DEBUG(self):
         """
         DEBUG: Shows all the data in the database, for debug purposes only. Made by GPT.
