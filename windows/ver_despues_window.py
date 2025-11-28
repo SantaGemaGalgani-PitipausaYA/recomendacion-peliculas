@@ -4,7 +4,7 @@
 # ------------------------------------------------------------
 
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QVBoxLayout, QTableWidget, QPushButton, QTableWidgetItem
+    QWidget, QLabel, QVBoxLayout, QTableWidget, QPushButton, QTableWidgetItem, QHeaderView
 )
 
 class VerDespuesWindow(QWidget):
@@ -26,6 +26,11 @@ class VerDespuesWindow(QWidget):
         self.table.setObjectName("verDespuesTable")
         self.table.setColumnCount(1)
         self.table.setHorizontalHeaderLabels(["Título"])
+
+        # 🔑 Ajuste clave: que la columna se estire al máximo
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+
         layout.addWidget(self.table)
 
         # Botón volver: siempre conectado a una función robusta
@@ -42,8 +47,13 @@ class VerDespuesWindow(QWidget):
         Carga desde la base de datos las películas en 'ver después' del usuario.
         Si la BD no implementa el método, se usan ejemplos.
         """
-        items = self.db.get_ver_despues_usuario(self.user_id)
+        try:
+            items = self.db.get_ver_despues_usuario(self.user_id) or []
+        except Exception as e:
+            print(f"Error al cargar ver después: {e}")
+            items = []
 
+        self.table.clearContents()
         self.table.setRowCount(len(items))
         for i, film in enumerate(items):
             self.table.setItem(i, 0, QTableWidgetItem(str(film)))
