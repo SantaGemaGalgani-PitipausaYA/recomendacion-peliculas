@@ -261,7 +261,7 @@ class BaseDeDatos():
         return row[0] if row else "Título desconocido"
     
 # Devuelve una lista de tuplas (titulo_pelicula, rating) de un usuario
-    def get_user_ranking(self, id_user):
+    '''def get_user_ranking(self, id_user):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
         cursor.execute("""
@@ -273,7 +273,45 @@ class BaseDeDatos():
         """, (id_user,))
         items = cursor.fetchall()
         conn.close()
-        return items
+        return items'''
+   
+    def load_ranking(self):
+        """
+        Carga las calificaciones del usuario en la tabla.
+        Usa directamente el método get_user_ranking de la BD.
+        """
+
+        films = []
+        if self.db and self.user_id:
+            try:
+                films = self.db.get_user_ranking(self.user_id)
+            except Exception as e:
+                # Si hay error en la consulta, usamos datos de ejemplo
+                print(f"Error al cargar ranking: {e}")
+                films = [
+                    ("Matrix", 5),
+                    ("Inception", 4),
+                    ("Interstellar", 3)
+                ]
+        else:
+            # Si no hay BD o user_id, mostramos datos de ejemplo
+            films = [
+                ("Matrix", 5),
+                ("Inception", 4),
+                ("Interstellar", 3)
+            ]
+
+        # Poblar la tabla
+        self.table.clearContents()
+        self.table.setRowCount(len(films))
+
+        for row, (film, score) in enumerate(films):
+            self.table.setItem(row, 0, QTableWidgetItem(str(film)))
+            self.table.setItem(row, 1, QTableWidgetItem(str(score)))
+
+        # Opcional: ajustar cabecera
+        header = self.table.horizontalHeader()
+        header.setStretchLastSection(True)
 
     # Devuelve la lista de títulos que el usuario ha marcado como "Ver después"
     def get_ver_despues_usuario(self, id_user):

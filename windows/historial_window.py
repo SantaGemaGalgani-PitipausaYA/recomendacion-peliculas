@@ -5,7 +5,7 @@
 # ------------------------------------------------------------
 
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem
+    QWidget, QLabel, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from windows.ficha_pelicula_window import FichaPeliculaWindow
 
@@ -16,6 +16,7 @@ class HistorialWindow(QWidget):
         self.logged_user = logged_user
         self.db = db
         self.setWindowTitle("Historial de recomendaciones")
+        self.setBaseSize(600, 400)
 
         layout = QVBoxLayout()
         title = QLabel("Historial de recomendaciones")
@@ -27,11 +28,13 @@ class HistorialWindow(QWidget):
         self.table.setObjectName("historialTable")
         self.table.setColumnCount(2)
         self.table.setHorizontalHeaderLabels(["Película", "Fecha"])
+
+        # 🔑 Ajuste clave: columnas ocupan todo el ancho
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+
         layout.addWidget(self.table)
 
-        # Botones de acción: ahora solo mostramos opciones relevantes.
-        # Eliminar botones redundantes aquí (la ficha ya ofrece acciones).
-        # Si quieres mantener botones globales puedes reañadirlos con lógica.
         back_btn = QPushButton("Volver")
         back_btn.setProperty("class", "app_boton")
         back_btn.clicked.connect(self.volver)
@@ -52,9 +55,11 @@ class HistorialWindow(QWidget):
         """
         try:
             items = self.db.get_historial_usuario(self.logged_user['id']) or []
-        except Exception:
+        except Exception as e:
+            print(f"Error al cargar historial: {e}")
             items = []
 
+        self.table.clearContents()
         self.table.setRowCount(len(items))
         for i, (film, date) in enumerate(items):
             self.table.setItem(i, 0, QTableWidgetItem(str(film)))
@@ -76,8 +81,6 @@ class HistorialWindow(QWidget):
             pelicula_id = None
 
         if not pelicula_id:
-            # Si no existe la película en la BD por alguna razón, la añadimos desde la tabla
-            # (si tienes un dataframe o un método alternativo, puedes adaptarlo).
             overview = ""
             try:
                 self.db.add_movie(titulo, overview)
@@ -86,7 +89,6 @@ class HistorialWindow(QWidget):
                 pelicula_id = None
 
         if pelicula_id:
-            # Abrir ficha de película, pasando db y user_id
             self.ficha_window = FichaPeliculaWindow(
                 pelicula_id=pelicula_id,
                 db=self.db,

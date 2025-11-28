@@ -118,6 +118,7 @@ class PerfilWindow(QWidget):
         self.ranking_window.show()
 
     def open_ver_despues(self):
+        print(self.logged_user['id'])
         self.ver_despues_window = VerDespuesWindow(self, user_id=self.logged_user['id'], db=self.db)
         self.ver_despues_window.show()
 
