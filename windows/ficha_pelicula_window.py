@@ -128,7 +128,6 @@ class FichaPeliculaWindow(QWidget):
                 user_id=self.user_id,
                 db=self.db
             )
-            self.ranking_window.load_ranking()
             self.ranking_window.show()
 
         btn_confirmar.clicked.connect(confirmar)

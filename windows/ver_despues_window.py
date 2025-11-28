@@ -35,17 +35,14 @@ class VerDespuesWindow(QWidget):
         layout.addWidget(back_btn)
 
         self.setLayout(layout)
+        self.load_films()
 
     def load_films(self):
         """
         Carga desde la base de datos las películas en 'ver después' del usuario.
         Si la BD no implementa el método, se usan ejemplos.
         """
-        try:
-            items = self.db.get_ver_despues_usuario(self.user_id)
-            # Esperamos una lista de títulos: ["Avatar", "Tenet", ...]
-        except Exception:
-            items = ["Avatar", "Tenet", "The Batman"]
+        items = self.db.get_ver_despues_usuario(self.user_id)
 
         self.table.setRowCount(len(items))
         for i, film in enumerate(items):

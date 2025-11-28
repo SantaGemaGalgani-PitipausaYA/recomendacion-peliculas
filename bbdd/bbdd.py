@@ -261,7 +261,7 @@ class BaseDeDatos():
         return row[0] if row else "Título desconocido"
     
 # Devuelve una lista de tuplas (titulo_pelicula, rating) de un usuario
-    '''def get_user_ranking(self, id_user):
+    def get_user_ranking(self, id_user):
         conn = sqlite3.connect("peliculas.db")
         cursor = conn.cursor()
         cursor.execute("""
@@ -273,7 +273,7 @@ class BaseDeDatos():
         """, (id_user,))
         items = cursor.fetchall()
         conn.close()
-        return items'''
+        return items
    
     def load_ranking(self):
         """

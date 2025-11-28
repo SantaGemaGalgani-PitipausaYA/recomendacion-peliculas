@@ -7,6 +7,8 @@
 #   ✓ Preparado para cargar datos reales desde la BD.
 # ------------------------------------------------------------
 
+from bbdd.bbdd import BaseDeDatos
+
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QTableWidget,
     QPushButton, QTableWidgetItem
@@ -18,7 +20,7 @@ class RankingWindow(QWidget):
 
         self.main_window = main_window  # Puede ser la ventana principal o la ficha de película
         self.user_id = user_id
-        self.db = db
+        self.db:BaseDeDatos = db
 
         self.setWindowTitle("Ranking de tus calificaciones")
 
@@ -55,6 +57,7 @@ class RankingWindow(QWidget):
         back_btn.setProperty("class", "app_boton")
         back_btn.clicked.connect(self.volver)
         layout.addWidget(back_btn)
+        self.load_ranking()
 
     # ------------------------------------------------------------
     # FUNCIÓN: Cargar datos del ranking
@@ -66,16 +69,7 @@ class RankingWindow(QWidget):
         se usa; de lo contrario, se muestran unas de ejemplo.
         """
 
-        try:
-            # Si tu BD tiene un método específico, puedes adaptarlo aquí.
-            films = self.db.get_user_ranking(self.user_id)
-        except:
-            # Datos de ejemplo si no existe el método en la BD
-            films = [
-                ("Matrix", 5),
-                ("Inception", 4),
-                ("Interstellar", 3)
-            ]
+        films = self.db.get_user_ranking(self.user_id)
 
         self.table.setRowCount(len(films))
 
