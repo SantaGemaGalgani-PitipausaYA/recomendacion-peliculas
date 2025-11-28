@@ -6,9 +6,10 @@ from windows.profile_pic_window import ProfilePicWindow
 from windows.viewed_films_window import ViewedFilmsWindow
 from windows.ranking_window import RankingWindow
 from windows.ver_despues_window import VerDespuesWindow
+from bbdd.bbdd import BaseDeDatos
 
 class PerfilWindow(QWidget):
-    def __init__(self, main_window, logged_user, db):
+    def __init__(self, main_window, logged_user, db: None):
         super().__init__()
         self.setWindowTitle("Perfil - Pitipausa YA!")
         self.main_window = main_window

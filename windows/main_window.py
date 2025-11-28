@@ -5,6 +5,7 @@ from windows.historial_window import HistorialWindow
 from windows.calificar_window import CalificarWindow
 from ai_dataset.ai_module import Recommender
 from windows.ficha_pelicula_window import FichaPeliculaWindow
+from bbdd.bbdd import BaseDeDatos
 
 class MainWindow(QWidget):
     def __init__(self, logged_user=None, db=None):

@@ -1,12 +1,13 @@
 # viewed_films_window.py
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QTableWidget, QPushButton, QTableWidgetItem
+from bbdd.bbdd import BaseDeDatos;
 
 class ViewedFilmsWindow(QWidget):
     def __init__(self, main_window=None, user_id=None, db=None):
         super().__init__()
         self.main_window = main_window
         self.user_id = user_id
-        self.db = db
+        self.db: BaseDeDatos = db
         self.setWindowTitle("Películas Vistas")
         self.setGeometry(100, 100, 480, 320)
 
@@ -29,11 +30,14 @@ class ViewedFilmsWindow(QWidget):
 
         self.setLayout(layout)
 
+        self.load_viewed_films()
+
     def load_viewed_films(self):
-        films = ["Matrix", "Inception", "Interstellar"]
-        self.table.setRowCount(len(films))
-        for i, film in enumerate(films):
-            self.table.setItem(i, 0, QTableWidgetItem(film))
+        pelis = self.db.get_historial_usuario(self.user_id)
+        self.table.setRowCount(len(pelis))
+        for i, (title, fecha) in enumerate(pelis):
+            self.table.setItem(i, 0, QTableWidgetItem(str(title)))
+            self.table.setItem(i, 1, QTableWidgetItem(str(fecha)))
 
     def go_back(self):
         self.close()

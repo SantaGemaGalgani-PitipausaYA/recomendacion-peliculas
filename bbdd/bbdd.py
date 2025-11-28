@@ -274,7 +274,9 @@ class BaseDeDatos():
             "movie_genre",
             "Users",
             "Ratings",
-            "Tags"
+            "Tags",
+            "Historial",
+            "VerDespues"
         ]
 
         for table in tables:
@@ -302,3 +304,4 @@ class BaseDeDatos():
                 print(f"Error reading table {table}: {e}\n")
 
         print("================== END OF DATABASE DUMP ==================\n")
+        conn.close()
