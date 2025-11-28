@@ -15,7 +15,7 @@ class SplashScreen(QWidget):
         layout.setSpacing(15)
 
         self.label = QLabel(self)
-        pixmap = QPixmap("assets/splashscreen.png").scaled(160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pixmap = QPixmap("assets/splashscreen.png")
         self.label.setPixmap(pixmap)
         self.label.setAlignment(Qt.AlignCenter)
 
